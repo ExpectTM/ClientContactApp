@@ -1,0 +1,83 @@
+﻿@model IEnumerable<ClientContactApp.Models.Contact>;
+
+<style>
+    .card-header, .head {
+        background-color: #D22B2B;
+    }
+
+</style>
+
+
+<div class="col-xl-12">
+    <div class="card mb-4">
+        <div class="card-header">
+            <span class="text-white">Link contact(s) to client - @ViewData["clientName"]</span>
+        </div>
+
+        <div class="card-body">
+            <form asp-controller="ClientContact" asp-action="LinkContactsToClient">
+            <table class="table mr-5 ml-5 table-striped" id="datatablesSimple">
+                <thead class="head">
+                    <tr>
+
+                        <th>
+                            Name
+                        </th>
+
+                        <th>
+                            Surname
+                        </th>
+
+                        <th>
+                           Email
+                        </th>
+
+                        <th>
+                            Link
+                        </th>
+
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    @foreach (var contact in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                @contact.Name
+
+                            </td>
+
+                            <td>
+                                @contact.Surname
+                            </td>
+
+                            <td>
+                                @contact.Email
+                            </td>
+
+                            
+                            <td>
+                                <div class="form-check">
+                                        
+                                        <input class="form-check-input" type="checkbox" name="contactIds" value="@contact.ContactId" id="contact_@contact.ContactId" />
+                                </div>
+                            </td>
+                            
+                        </tr>
+                    }
+                   
+                </tbody>
+                
+            </table>
+            <div class="form-group col-md-12 mt-3" style="background-color:whitesmoke;">
+                    <button type="submit" class="btn btn-success save" asp-route-clientId="@ViewData["clientId"]"><i class="fa fa-save"></i> Save</button>
+                    <a class="btn btn-outline-danger float-end" asp-action="Index" asp-controller="Home"><i class="fa fa-window-close"></i> Exit</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

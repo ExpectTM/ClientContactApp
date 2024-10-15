@@ -1,0 +1,164 @@
+﻿@model IEnumerable<ClientContactApp.Models.Client>
+
+<style>
+    .card-header, .head {
+        background-color: #D22B2B;
+    }
+
+</style>
+
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Create Client</button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="clients-tab" data-bs-toggle="tab" data-bs-target="#clients" type="button" role="tab" aria-controls="clients" aria-selected="false">Clients List</button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="link-tab" data-bs-toggle="tab" data-bs-target="#link" type="button" role="tab" aria-controls="link" aria-selected="false">Contact(s)</button>
+    </li>
+
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <span class="text-white">New Client<span class="text-bold"></span></span>
+                </div>
+
+                <div class="card-body">
+                    <div type="button" class="btn btn-info">
+
+                        <a class="text-primary text-decoration-none" asp-action="OnCreateClient">
+                            Add Client
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="tab-pane fade" id="clients" role="tabpanel" aria-labelledby="clients-tab">
+
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <span class="text-white">Clients<span class="text-bold"></span></span>
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table mr-5 ml-5 table-striped" id="datatablesSimple">
+                        <thead class="head">
+                            <tr>
+
+                                <th>
+                                    Name
+                                </th>
+
+                                <th>
+                                    Client Code
+                                </th>
+
+                                <th>
+                                    Number of linked Contact
+                                </th>
+
+                                <th>
+                                    link Contact
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var client in Model)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        @client.Name
+
+                                    </td>
+
+                                    <td>
+                                        @client.ClientCode
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        @{
+                                            
+                                            var clientContactCounts = (Dictionary<Guid, int>)ViewData["ClientContactCounts"];
+
+                                            int contactCount = 0;
+                                            if (clientContactCounts.TryGetValue(client.ClientId, out contactCount))
+                                            {
+                                                
+                                                @contactCount
+                                            }
+                                        }
+
+                                    </td>
+
+                                    <td>
+                                            <div type="button" class="btn btn-info">
+
+                                            <a class="text-primary text-decoration-none" asp-controller="ClientContact" asp-action="LinkContactsToClient" asp-route-clientId="@client.ClientId">
+                                                    link
+                                            </a>
+                                            </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="link" role="tabpanel" aria-labelledby="link-tab">
+
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <span class="text-white">Linked Contacts<span class="text-bold"></span></span>
+                </div>
+
+                <div class="card-body">
+
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+    
+</div>
+
+@section Scripts {
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+}
