@@ -1,5 +1,6 @@
 ﻿using ClientContactApp.Data;
 using ClientContactApp.Models;
+using ClientContactApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -14,6 +15,74 @@ namespace ClientContactApp.Controllers
         {
             _context = context;
         }
+
+        public async Task<IActionResult> Index()
+        {
+            var contacts = _context.Contacts.ToList();
+
+            var clients = _context.Clients.ToList();
+
+            ClientContactDTO clientContactDTO = new ClientContactDTO
+            {
+                Contacts = new List<ClientContactDTO.ContactDTO>(),
+
+                Clients = new List<ClientContactDTO.ClientDTO>()
+            };
+
+            
+            Dictionary<Guid, int> clientContactCounts = new Dictionary<Guid, int>();
+
+            foreach (var client in clients)
+            {
+                int linkContacts = await GetLinkedContactCount(client.ClientId);
+
+                clientContactCounts[client.ClientId] = linkContacts;
+            }
+
+            ViewData["ClientContactCounts"] = clientContactCounts;
+
+
+            Dictionary<Guid, int> contactClientCounts = new Dictionary<Guid, int>();
+
+            foreach (var contact in contacts)
+            {
+                int linkClients = await GetLinkedClientCount(contact.ContactId);
+
+                contactClientCounts[contact.ContactId] = linkClients;
+            }
+
+            ViewData["ContactClientCounts"] = contactClientCounts;
+
+
+            foreach (var contact in contacts)
+            {
+                var contactDTO = new ClientContactDTO.ContactDTO
+                {
+                    ContactId = contact.ContactId,
+                    Email = contact.Email,
+                    Surname = contact.Surname,
+                    ContactName = contact.Name
+                };
+
+                clientContactDTO.Contacts.Add(contactDTO);
+            }
+
+            
+            foreach (var client in clients)
+            {
+                var clientDTO = new ClientContactDTO.ClientDTO
+                {
+                    ClientId = client.ClientId,
+                    ClientName = client.Name,
+                    ClientCode = client.ClientCode
+                };
+
+                clientContactDTO.Clients.Add(clientDTO);
+            }
+
+            return View(clientContactDTO);
+        }
+
 
         [HttpGet]
         public IActionResult LinkContactsToClient(Guid clientId)
@@ -36,7 +105,9 @@ namespace ClientContactApp.Controllers
 
             if (client == null)
             {
-                return NotFound("Client not found.");
+                TempData["error"] = "Client not found.";
+
+                return RedirectToAction("Index");
             }
 
             
@@ -44,15 +115,12 @@ namespace ClientContactApp.Controllers
                 .Where(c => contactIds.Contains(c.ContactId))
                 .ToListAsync();
 
-            if (contacts.Count != contactIds.Count)
-            {
-                return BadRequest("Some of the contacts provided were not found.");
-            }
 
             foreach (var contact in contacts)
             {
                 var existingLink = await _context.ClientContacts
                     .FirstOrDefaultAsync(cc => cc.ClientId == clientId && cc.ContactId == contact.ContactId);
+
 
                 if (existingLink == null)
                 {
@@ -63,13 +131,19 @@ namespace ClientContactApp.Controllers
                     };
                     _context.ClientContacts.Add(clientContact);
                 }
+                else
+                {
+                    TempData["error"] = "Contact already linked";
+
+                    return RedirectToAction("Index");
+                }
             }
 
             await _context.SaveChangesAsync();
 
             TempData["success"] = "Contacts linked to client successfully.";
 
-            return RedirectToAction("Index", "Client");
+            return RedirectToAction("Index");
         }
 
 
@@ -85,10 +159,13 @@ namespace ClientContactApp.Controllers
 
             if (contact == null)
             {
-                return NotFound("Contact not found.");
+                TempData["error"] = "Contact not found.";
+
+                return NotFound("Index");
             }
 
             ViewData["contactId"] = contactId;
+
             ViewData["FullName"] = $"{contact.Name} {contact.Surname}";
 
             return View(clientList);
@@ -117,10 +194,28 @@ namespace ClientContactApp.Controllers
 
             TempData["success"] = "Contacts unlinked from client successfully.";
 
-            return RedirectToAction("Index", "Contact");
+            return RedirectToAction("Index");
         }
 
 
+        private async Task<int> GetLinkedContactCount(Guid clientId)
+        {
+            var linkedContactCount = await _context.ClientContacts
+                .Where(cc => cc.ClientId == clientId)
+                .CountAsync();
+
+            return linkedContactCount;
+        }
+
+        private async Task<int> GetLinkedClientCount(Guid contactId)
+        {
+            var linkedClientCount = await _context.ClientContacts
+                .Where(cc => cc.ContactId == contactId)
+                .CountAsync();
+
+            return linkedClientCount;
+        }
 
     }
+
 }

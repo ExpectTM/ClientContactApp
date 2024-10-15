@@ -15,41 +15,6 @@ namespace ClientContactApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-
-            List<Client> clients = await _context.Clients.ToListAsync();
-
-            Dictionary<Guid, int> clientContactCounts = new Dictionary<Guid, int>();
-
-            foreach (var client in clients)
-            {
-                int linkContacts = await GetLinkedContactCount(client.ClientId);
-                clientContactCounts[client.ClientId] = linkContacts;
-            }
-
-            ViewData["ClientContactCounts"] = clientContactCounts;
-
-            if (clients is null)
-            {
-                return RedirectToAction("No client(s) found");
-            }
-
-            return View(clients);
-        }
-
-
-        public async Task<int> GetLinkedContactCount(Guid clientId)
-        {
-            var linkedContactCount = await _context.ClientContacts
-                .Where(cc => cc.ClientId == clientId)
-                .CountAsync();
-
-            return linkedContactCount;
-        }
-
-
-        [HttpGet]
         public IActionResult OnCreateClient()
         {
             return View();
@@ -71,10 +36,10 @@ namespace ClientContactApp.Controllers
 
             TempData["success"] = "Client created successfully";
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "ClientContact");
         }
 
-        public string GetClientCode()
+        private string GetClientCode()
         {
             
             var lastClient = _context.Clients
@@ -86,7 +51,6 @@ namespace ClientContactApp.Controllers
 
             if (lastClient != null && int.TryParse(lastClient.ClientCode.Substring(3), out int lastNumber))
             {
-                
                 numberSequence = lastNumber + 1;
             }
 
@@ -95,15 +59,5 @@ namespace ClientContactApp.Controllers
             return newClientCode;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ContactsByClient(Guid clientId)
-        {
-            var clientContacts = await _context.ClientContacts
-                .Where(cc => cc.ClientId == clientId)
-                .Include(cc => cc.Contact)
-                .ToListAsync();
-
-            return View(clientContacts);
-        }
     }
 }

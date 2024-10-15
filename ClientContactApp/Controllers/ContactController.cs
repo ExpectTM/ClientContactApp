@@ -15,39 +15,6 @@ namespace ClientContactApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-
-            List<Contact> contacts = await _context.Contacts.ToListAsync();
-
-            Dictionary<Guid, int> contactClientCounts = new Dictionary<Guid, int>();
-
-            foreach (var contact in contacts)
-            {
-                int linkClients = await GetLinkedClientCount(contact.ContactId);
-                contactClientCounts[contact.ContactId] = linkClients;
-            }
-
-            ViewData["ContactClientCounts"] = contactClientCounts;
-
-            if (contacts is null)
-            {
-                return RedirectToAction("No contact(s) found");
-            }
-
-            return View(contacts);
-        }
-
-        public async Task<int> GetLinkedClientCount(Guid contactId)
-        {
-            var linkedClientCount = await _context.ClientContacts
-                .Where(cc => cc.ContactId == contactId)
-                .CountAsync();
-
-            return linkedClientCount;
-        }
-
-        [HttpGet]
         public IActionResult OnCreateContact()
         {
             return View();
@@ -80,10 +47,8 @@ namespace ClientContactApp.Controllers
 
             TempData["success"] = "Contact created successfully";
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "ClientContact");
         }
-
-        
 
     }
 }

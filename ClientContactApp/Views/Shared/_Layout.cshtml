@@ -28,11 +28,9 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Client" asp-action="Index">Clients</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ClientContact" asp-action="Index">Manage Clients</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Contact" asp-action="Index">Contacts</a>
-                        </li>
+                        
                     </ul>
                 </div>
             </div>
@@ -55,6 +53,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
     <script src="~/js/datatables-simple.js"></script>
+    <script src="~/js/datatablesSimple1.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
