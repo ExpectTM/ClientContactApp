@@ -1,5 +1,5 @@
 1. Introduction:
- - Overview: The project is a client and contact management system that allows users to create, view, and manage clients and their associated contacts. The system is designed to be efficient and userfriendly, addressing the needs of businesses to organize their customer and contact information.
+ - Overview: The project is a client and contact management system that allows users to create, view, and manage clients and their associated contacts. The system is designed to be efficient and user-friendly, addressing the needs of businesses to organize their customer and contact information.
  - Objective: The main objective of this system is to enable users to easily link clients with contacts, manage their details, and streamline contact management processes.
    
 2. Tech Stack:
